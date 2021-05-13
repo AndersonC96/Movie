@@ -218,9 +218,6 @@ function getMovie(){
                                                 <a href="${movie.homepage}" class="btn-second">Homepage</a>
                                             </div>
                                             <br>
-                                            <div>
-                                                <a href="https://www.themoviedb.org/watch/providers/regions" target="_blank" class="btn-one">Trailer</a>
-                                            </div>
                                         </div>
                                     </div>
                                 `
