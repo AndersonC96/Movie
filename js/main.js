@@ -204,7 +204,7 @@ function getMovie(){
                                             <h1 class="title-second">Synopsis</h1>
                                             <p>${movie.overview}</p>
                                             <hr style="width: 80%;color: #222;">
-                                            <h1 class="title-second">Producers</h1>
+                                            <h1 class="title-second">Production companies</h1>
                                             <p>${production_companies}</p>
                                             <hr style="width: 80%;color: #222;">
                                             <div>
