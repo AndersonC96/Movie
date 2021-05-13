@@ -219,7 +219,7 @@ function getMovie(){
                                             </div>
                                             <br>
                                             <div>
-                                                <a href="https://www.themoviedb.org/movie/{movie_id}/videos" target="_blank" class="btn-one">Trailer</a>
+                                                <a href="https://www.themoviedb.org/movie/${movie_id}/videos" target="_blank" class="btn-one">Trailer</a>
                                             </div>
                                         </div>
                                     </div>
