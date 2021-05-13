@@ -217,6 +217,11 @@ function getMovie(){
                                                 <a href="https://www.themoviedb.org/movie/${movie.id}/watch?locale=BR" target="_blank" class="btn-one">Streaming</a>
                                                 <a href="${movie.homepage}" class="btn-second">Homepage</a>
                                             </div>
+                                            <br>
+                                            <div>
+                                                <a href="https://www.themoviedb.org/movie/${movie.id}/watch?locale=BR" target="_blank" class="btn-one">Streaming</a>
+                                                <a href="${movie.homepage}" class="btn-second">Homepage</a>
+                                            </div>
                                         </div>
                                     </div>
                                 `
