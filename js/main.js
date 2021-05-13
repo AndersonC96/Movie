@@ -126,7 +126,7 @@ function getReviews(){
 function getMovie(){
     let movieId = sessionStorage.getItem('id');
     //test id -> 299536
-        axios.get(`https://api.themoviedb.org/3/movie/${movieId}?api_key=80b747723113ce82af58357242c61035&language=pt-BR`)
+        axios.get(`https://api.themoviedb.org/3/movie/${movieId}?api_key=80b747723113ce82af58357242c61035&language=en-US`)
             .then((response) => {
                 // https://api.themoviedb.org/3/movie/299536/reviews?api_key=5ec279387e9aa9488ef4d00b22acc451&language=en-US&page=1
                 console.log(response);
