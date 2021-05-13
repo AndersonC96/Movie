@@ -71,7 +71,7 @@
                                             MoviesInfo are best known for the excellent
                                         <span style="font-weight:bold; color: #6AC045">Information</span> for each and every released and not released movies. We are providing
                                             this information by the help of
-                                        <span style="font-weight:bold; color: #6AC045">MovieDB </span> which known for their movies resources.
+                                        <span style="font-weight:bold; color: #6AC045">Movies Databse </span> which known for their movies resources.
                                         <span style="font-weight:bold; color: #6AC045">Browse</span> Movie and get detail aspect of your favourite movie.
                                     </p>
                                 </div>
