@@ -69,7 +69,7 @@
                             </h1>
                             <p style="color: white" class="content">
                                 Welcome to
-                                <span style="font-weight:bold; color: #6AC045">MoviesInfo</span> | It is site where you can view information about your favourite movie. MoviesInfo
+                                <span style="font-weight:bold; color: #6AC045">Movies Database</span> | It is site where you can view information about your favourite movie. Movies Database
                                     are best known for the excellent
                                 <span style="font-weight:bold; color: #6AC045">Information</span> for each and every released and not released movies. We are providing this information
                                     by the help of
