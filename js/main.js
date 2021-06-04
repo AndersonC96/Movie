@@ -141,6 +141,7 @@ function getMovie(){
                         let Rated;
                         let revenue = movie.revenue / 1000000;
                         let budget = movie.budget / 1000000;
+                        let popularity = movie.popularity;
                         IMDB = movie.imdb_id;
                         revenue = Math.round(revenue);
                         budget = Math.round(budget);
@@ -198,6 +199,8 @@ function getMovie(){
                                                     <strong>Tagline: </strong> ${movie.tagline}</li>
                                                 <li class="list-group-item active">
                                                     <strong>Languages: </strong> ${languages}</li>
+                                                <li class="list-group-item active">
+                                                    <strong>Popularity: </strong> ${popularity}</li>
                                             </ul>
                                         </div>
                                         <div class="col-md-4 box3">
