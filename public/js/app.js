@@ -784,37 +784,74 @@ const MovieApp = {
             return '';
         }
 
-        const movies = similar.results; // Show all
+        const allMovies = similar.results;
+        const initialCount = 10;
+        const hasMore = allMovies.length > initialCount;
+        const initialMovies = allMovies.slice(0, initialCount);
+        const moreMovies = allMovies.slice(initialCount);
 
         return `
             <div class="mt-5">
                 <div class="glass-card">
-                    <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Filmes Similares</h4>
-                    <div class="similar-movies-grid">
-                        ${movies.map(movie => `
-                            <div class="similar-movie-card" onclick="MovieApp.selectMovie(${movie.id})">
-                                <img src="${movie.poster_path
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0"><i class="fas fa-film text-primary me-2"></i>Filmes Similares</h4>
+                        ${hasMore ? `
+                            <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleSimilar()">
+                                <i class="fas fa-chevron-down me-1"></i>
+                                <span id="similarToggleText">Mostrar Mais</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="similar-movies-grid" id="similarGrid">
+                        ${initialMovies.map(movie => this.renderSimilarCard(movie)).join('')}
+                    </div>
+                    ${hasMore ? `
+                        <div class="similar-movies-grid mt-3" id="similarGridMore" style="display: none;">
+                            ${moreMovies.map(movie => this.renderSimilarCard(movie)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Render a single similar movie card
+     */
+    renderSimilarCard(movie) {
+        return `
+            <div class="similar-movie-card" onclick="MovieApp.selectMovie(${movie.id})">
+                <img src="${movie.poster_path
                 ? IMAGE_BASE + '/w185' + movie.poster_path
                 : PLACEHOLDER_IMAGE}" 
-                                    alt="${movie.title}"
-                                    class="similar-movie-poster"
-                                    onerror="this.src='${PLACEHOLDER_IMAGE}'">
-                                <div class="similar-movie-info">
-                                    <h6 class="similar-movie-title">${movie.title}</h6>
-                                    <div class="similar-movie-meta">
-                                        <span class="similar-movie-year">${UI.getYear(movie.release_date)}</span>
-                                        <span class="similar-movie-rating">
-                                            <i class="fas fa-star text-warning"></i>
-                                            ${UI.formatRating(movie.vote_average)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
+                    alt="${movie.title}"
+                    class="similar-movie-poster"
+                    onerror="this.src='${PLACEHOLDER_IMAGE}'">
+                <div class="similar-movie-info">
+                    <h6 class="similar-movie-title">${movie.title}</h6>
+                    <div class="similar-movie-meta">
+                        <span class="similar-movie-year">${UI.getYear(movie.release_date)}</span>
+                        <span class="similar-movie-rating">
+                            <i class="fas fa-star text-warning"></i>
+                            ${UI.formatRating(movie.vote_average)}
+                        </span>
                     </div>
                 </div>
             </div>
         `;
+    },
+
+    /**
+     * Toggle similar movies visibility
+     */
+    toggleSimilar() {
+        const moreGrid = document.getElementById('similarGridMore');
+        const toggleText = document.getElementById('similarToggleText');
+        if (moreGrid) {
+            const isHidden = moreGrid.style.display === 'none';
+            moreGrid.style.display = isHidden ? 'grid' : 'none';
+            toggleText.textContent = isHidden ? 'Mostrar Menos' : 'Mostrar Mais';
+        }
     }
 };
 
