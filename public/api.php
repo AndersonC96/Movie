@@ -4,10 +4,11 @@
  * API Entry Point
  * 
  * Handles all API requests for movie data.
+ * Using TMDb API v4 with Bearer token authentication.
  * 
  * @package App
  * @author Anderson
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 declare(strict_types=1);
@@ -67,9 +68,26 @@ switch ($action) {
         $controller->seriesDetails();
         break;
     
+    // New v4 endpoints
+    case 'trending':
+        $controller->trending();
+        break;
+    
+    case 'now-playing':
+        $controller->nowPlaying();
+        break;
+    
+    case 'upcoming':
+        $controller->upcoming();
+        break;
+    
     default:
         http_response_code(400);
         header('Content-Type: application/json');
-        echo json_encode(['error' => 'Invalid action']);
+        echo json_encode(['error' => 'Invalid action', 'available' => [
+            'search', 'popular', 'top-rated', 'details', 'reviews', 
+            'credits', 'popular-series', 'series-details', 
+            'trending', 'now-playing', 'upcoming'
+        ]]);
         break;
 }

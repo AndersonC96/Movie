@@ -9,11 +9,12 @@ use Core\Controller;
 /**
  * Movie API Controller
  * 
- * Handles TMDb API requests from backend to protect API key.
+ * Handles TMDb API v4 requests from backend to protect API key.
+ * Uses Bearer token authentication for API v4.
  * 
  * @package App\Controllers
  * @author Anderson
- * @version 2.0.0
+ * @version 3.0.0
  */
 class MovieApiController extends Controller
 {
@@ -23,14 +24,24 @@ class MovieApiController extends Controller
     private array $config;
 
     /**
-     * @var string API key
+     * @var string Access token for Bearer auth
      */
-    private string $apiKey;
+    private string $accessToken;
 
     /**
-     * @var string Base URL
+     * @var string Base URL for API v3 (still used for most endpoints)
      */
-    private string $baseUrl;
+    private string $baseUrlV3;
+
+    /**
+     * @var string Base URL for API v4
+     */
+    private string $baseUrlV4;
+
+    /**
+     * @var string Default language
+     */
+    private string $language;
 
     /**
      * MovieApiController constructor
@@ -38,9 +49,12 @@ class MovieApiController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->config = require dirname(__DIR__, 2) . '/config/api.php';
-        $this->apiKey = $this->config['tmdb']['api_key'];
-        $this->baseUrl = $this->config['tmdb']['base_url'];
+        $configPath = dirname(__DIR__, 3) . '/config/api.php';
+        $this->config = require $configPath;
+        $this->accessToken = $this->config['tmdb']['access_token'];
+        $this->baseUrlV3 = $this->config['tmdb']['base_url_v3'];
+        $this->baseUrlV4 = $this->config['tmdb']['base_url_v4'];
+        $this->language = $this->config['tmdb']['language'];
     }
 
     /**
@@ -58,11 +72,10 @@ class MovieApiController extends Controller
             return;
         }
 
-        $url = "{$this->baseUrl}/search/movie?" . http_build_query([
-            'api_key' => $this->apiKey,
+        $url = "{$this->baseUrlV3}/search/movie?" . http_build_query([
             'query'   => $query,
             'page'    => $page,
-            'language' => 'pt-BR'
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -77,10 +90,9 @@ class MovieApiController extends Controller
     {
         $page = (int) $this->get('page', '1');
 
-        $url = "{$this->baseUrl}/movie/popular?" . http_build_query([
-            'api_key'  => $this->apiKey,
+        $url = "{$this->baseUrlV3}/movie/popular?" . http_build_query([
             'page'     => $page,
-            'language' => 'pt-BR'
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -95,10 +107,9 @@ class MovieApiController extends Controller
     {
         $page = (int) $this->get('page', '1');
 
-        $url = "{$this->baseUrl}/movie/top_rated?" . http_build_query([
-            'api_key'  => $this->apiKey,
+        $url = "{$this->baseUrlV3}/movie/top_rated?" . http_build_query([
             'page'     => $page,
-            'language' => 'pt-BR'
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -118,9 +129,8 @@ class MovieApiController extends Controller
             return;
         }
 
-        $url = "{$this->baseUrl}/movie/{$id}?" . http_build_query([
-            'api_key'  => $this->apiKey,
-            'language' => 'pt-BR'
+        $url = "{$this->baseUrlV3}/movie/{$id}?" . http_build_query([
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -141,10 +151,9 @@ class MovieApiController extends Controller
             return;
         }
 
-        $url = "{$this->baseUrl}/movie/{$id}/reviews?" . http_build_query([
-            'api_key'  => $this->apiKey,
+        $url = "{$this->baseUrlV3}/movie/{$id}/reviews?" . http_build_query([
             'page'     => $page,
-            'language' => 'pt-BR'
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -164,9 +173,8 @@ class MovieApiController extends Controller
             return;
         }
 
-        $url = "{$this->baseUrl}/movie/{$id}/credits?" . http_build_query([
-            'api_key'  => $this->apiKey,
-            'language' => 'pt-BR'
+        $url = "{$this->baseUrlV3}/movie/{$id}/credits?" . http_build_query([
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -181,10 +189,9 @@ class MovieApiController extends Controller
     {
         $page = (int) $this->get('page', '1');
 
-        $url = "{$this->baseUrl}/tv/popular?" . http_build_query([
-            'api_key'  => $this->apiKey,
+        $url = "{$this->baseUrlV3}/tv/popular?" . http_build_query([
             'page'     => $page,
-            'language' => 'pt-BR'
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
@@ -204,16 +211,67 @@ class MovieApiController extends Controller
             return;
         }
 
-        $url = "{$this->baseUrl}/tv/{$id}?" . http_build_query([
-            'api_key'  => $this->apiKey,
-            'language' => 'pt-BR'
+        $url = "{$this->baseUrlV3}/tv/{$id}?" . http_build_query([
+            'language' => $this->language
         ]);
 
         $this->fetchAndReturn($url);
     }
 
     /**
-     * Fetch data from TMDb API and return as JSON
+     * Get trending movies (v4 feature)
+     * 
+     * @return void
+     */
+    public function trending(): void
+    {
+        $timeWindow = $this->get('time_window', 'week'); // day or week
+        $page = (int) $this->get('page', '1');
+
+        $url = "{$this->baseUrlV3}/trending/movie/{$timeWindow}?" . http_build_query([
+            'page'     => $page,
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Get now playing movies
+     * 
+     * @return void
+     */
+    public function nowPlaying(): void
+    {
+        $page = (int) $this->get('page', '1');
+
+        $url = "{$this->baseUrlV3}/movie/now_playing?" . http_build_query([
+            'page'     => $page,
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Get upcoming movies
+     * 
+     * @return void
+     */
+    public function upcoming(): void
+    {
+        $page = (int) $this->get('page', '1');
+
+        $url = "{$this->baseUrlV3}/movie/upcoming?" . http_build_query([
+            'page'     => $page,
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Fetch data from TMDb API using Bearer token authentication
      * 
      * @param string $url API URL
      * @return void
@@ -223,15 +281,23 @@ class MovieApiController extends Controller
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
-                'header' => 'Accept: application/json',
-                'timeout' => 10
+                'header' => [
+                    'Accept: application/json',
+                    'Authorization: Bearer ' . $this->accessToken
+                ],
+                'timeout' => 15,
+                'ignore_errors' => true
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
             ]
         ]);
 
         $response = @file_get_contents($url, false, $context);
 
         if ($response === false) {
-            $this->json(['error' => 'Failed to fetch data from API'], 500);
+            $this->json(['error' => 'Failed to fetch data from API', 'url' => $url], 500);
             return;
         }
 
@@ -239,6 +305,12 @@ class MovieApiController extends Controller
         
         if ($data === null) {
             $this->json(['error' => 'Invalid response from API'], 500);
+            return;
+        }
+
+        // Check for API errors
+        if (isset($data['success']) && $data['success'] === false) {
+            $this->json(['error' => $data['status_message'] ?? 'API Error'], 400);
             return;
         }
 
