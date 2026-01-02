@@ -204,9 +204,3 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull re
 **Anderson Cavalcante**
 
 [![GitHub](https://img.shields.io/badge/GitHub-AndersonC96-181717?style=flat-square&logo=github)](https://github.com/AndersonC96)
-
----
-
-<p align="center">
-  Desenvolvido com ❤️ e ☕
-</p>
