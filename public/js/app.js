@@ -500,20 +500,19 @@ const MovieApp = {
                         </div>
                     </div>
                     
-                    ${this.renderCastSection(movie.credits)}
-                    
-                    ${this.renderSimilarMovies(movie.similar)}
+                    ${this.renderCastSection(movie.credits, movie.similar)}
                 </div>
             </div>
         `;
     },
 
     /**
-     * Render cast and crew section
+     * Render cast, crew, and similar section
      * @param {Object} credits - Credits data with cast and crew
+     * @param {Object} similar - Similar movies data
      * @returns {string} HTML string
      */
-    renderCastSection(credits) {
+    renderCastSection(credits, similar) {
         if (!credits) return '';
 
         const cast = credits.cast || [];
@@ -560,7 +559,10 @@ const MovieApp = {
                     </div>
                 ` : ''}
                 
-                <!-- Key Crew (Equipe Técnica) - SECOND -->
+                <!-- Similar Movies - AFTER CAST -->
+                ${this.renderSimilarSection(similar)}
+                
+                <!-- Key Crew (Equipe Técnica) -->
                 ${keyCrew.length > 0 ? `
                     <div class="glass-card mb-4">
                         <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Equipe Técnica</h4>
@@ -779,7 +781,7 @@ const MovieApp = {
      * @param {Object} similar - Similar movies data
      * @returns {string} HTML string
      */
-    renderSimilarMovies(similar) {
+    renderSimilarSection(similar) {
         if (!similar || !similar.results || similar.results.length === 0) {
             return '';
         }
