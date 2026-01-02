@@ -475,6 +475,10 @@ const MovieApp = {
                                     <strong>Países</strong>
                                     <span>${countries || 'N/A'}</span>
                                 </div>
+                                <div class="info-item" style="grid-column: span 2;">
+                                    <strong>Produtoras</strong>
+                                    <span>${companies || 'Não informado'}</span>
+                                </div>
                             </div>
                             
                             <div class="btn-group mt-4">

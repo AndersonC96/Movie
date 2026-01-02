@@ -116,7 +116,15 @@ class MovieApiController extends Controller
     }
 
     /**
-     * Get movie details
+     * Get movie details with extended info
+     * 
+     * Uses append_to_response to fetch multiple data in one request:
+     * - videos (trailers, teasers)
+     * - credits (cast & crew)
+     * - recommendations
+     * - similar movies
+     * - watch/providers (streaming platforms)
+     * - images (posters, backdrops)
      * 
      * @return void
      */
@@ -129,8 +137,22 @@ class MovieApiController extends Controller
             return;
         }
 
+        // Use append_to_response for efficient data fetching
+        $appendData = [
+            'videos',
+            'credits',
+            'recommendations',
+            'similar',
+            'watch/providers',
+            'images',
+            'keywords',
+            'external_ids'
+        ];
+
         $url = "{$this->baseUrlV3}/movie/{$id}?" . http_build_query([
-            'language' => $this->language
+            'language' => $this->language,
+            'append_to_response' => implode(',', $appendData),
+            'include_image_language' => 'pt,en,null'
         ]);
 
         $this->fetchAndReturn($url);
@@ -198,7 +220,9 @@ class MovieApiController extends Controller
     }
 
     /**
-     * Get TV show details
+     * Get TV show details with extended info
+     * 
+     * Uses append_to_response to fetch multiple data in one request
      * 
      * @return void
      */
@@ -211,8 +235,22 @@ class MovieApiController extends Controller
             return;
         }
 
+        // Use append_to_response for efficient data fetching
+        $appendData = [
+            'videos',
+            'credits',
+            'recommendations',
+            'similar',
+            'watch/providers',
+            'images',
+            'keywords',
+            'external_ids'
+        ];
+
         $url = "{$this->baseUrlV3}/tv/{$id}?" . http_build_query([
-            'language' => $this->language
+            'language' => $this->language,
+            'append_to_response' => implode(',', $appendData),
+            'include_image_language' => 'pt,en,null'
         ]);
 
         $this->fetchAndReturn($url);
@@ -315,5 +353,145 @@ class MovieApiController extends Controller
         }
 
         $this->json($data);
+    }
+
+    /**
+     * Get movie videos (trailers, teasers)
+     * 
+     * @return void
+     */
+    public function videos(): void
+    {
+        $id = (int) $this->get('id', '0');
+
+        if ($id <= 0) {
+            $this->json(['error' => 'Valid movie ID is required'], 400);
+            return;
+        }
+
+        $url = "{$this->baseUrlV3}/movie/{$id}/videos?" . http_build_query([
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Get movie/TV genres list
+     * 
+     * @return void
+     */
+    public function genres(): void
+    {
+        $type = $this->get('type', 'movie'); // movie or tv
+
+        $url = "{$this->baseUrlV3}/genre/{$type}/list?" . http_build_query([
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Discover movies with filters
+     * 
+     * @return void
+     */
+    public function discover(): void
+    {
+        $type = $this->get('type', 'movie'); // movie or tv
+        $page = (int) $this->get('page', '1');
+        $sortBy = $this->get('sort_by', 'popularity.desc');
+        $year = $this->get('year', '');
+        $genre = $this->get('with_genres', '');
+        $voteAverage = $this->get('vote_average_gte', '');
+
+        $params = [
+            'page' => $page,
+            'language' => $this->language,
+            'sort_by' => $sortBy
+        ];
+
+        if (!empty($year)) {
+            $params[$type === 'movie' ? 'primary_release_year' : 'first_air_date_year'] = $year;
+        }
+        if (!empty($genre)) {
+            $params['with_genres'] = $genre;
+        }
+        if (!empty($voteAverage)) {
+            $params['vote_average.gte'] = $voteAverage;
+        }
+
+        $url = "{$this->baseUrlV3}/discover/{$type}?" . http_build_query($params);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Get watch providers for a movie/TV show
+     * 
+     * @return void
+     */
+    public function providers(): void
+    {
+        $id = (int) $this->get('id', '0');
+        $type = $this->get('type', 'movie'); // movie or tv
+
+        if ($id <= 0) {
+            $this->json(['error' => 'Valid ID is required'], 400);
+            return;
+        }
+
+        $url = "{$this->baseUrlV3}/{$type}/{$id}/watch/providers";
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Search multi (movies, TV shows, people)
+     * 
+     * @return void
+     */
+    public function searchMulti(): void
+    {
+        $query = $this->get('query', '');
+        $page = (int) $this->get('page', '1');
+
+        if (empty($query)) {
+            $this->json(['error' => 'Query parameter is required'], 400);
+            return;
+        }
+
+        $url = "{$this->baseUrlV3}/search/multi?" . http_build_query([
+            'query'   => $query,
+            'page'    => $page,
+            'language' => $this->language
+        ]);
+
+        $this->fetchAndReturn($url);
+    }
+
+    /**
+     * Get person details with extended info
+     * 
+     * @return void
+     */
+    public function person(): void
+    {
+        $id = (int) $this->get('id', '0');
+
+        if ($id <= 0) {
+            $this->json(['error' => 'Valid person ID is required'], 400);
+            return;
+        }
+
+        $appendData = ['movie_credits', 'tv_credits', 'images', 'external_ids'];
+
+        $url = "{$this->baseUrlV3}/person/{$id}?" . http_build_query([
+            'language' => $this->language,
+            'append_to_response' => implode(',', $appendData)
+        ]);
+
+        $this->fetchAndReturn($url);
     }
 }
