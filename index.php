@@ -1,10 +1,13 @@
 <?php
-    session_start();// início da sessão
-        if(!isset($_SESSION['username'])){// se não existir a sessão
-            header('location: guest/index.php');// redireciona para a página de login
-        }elseif(isset($_SESSION['username'])=="admin"){// se existir a sessão e o valor for igual a admin
-            header('location: admin/index.php');// redireciona para a página de admin
-        }else{// se não for admin
-            header('location: user/index.php');// redireciona para a página de usuário
-        }
-?>
+/**
+ * Movies Database - Main Router
+ * 
+ * Redirects all requests to the public directory.
+ * 
+ * @package App
+ * @author Anderson
+ * @version 2.0.0
+ */
+
+header('Location: /Movie/public/');
+exit;
