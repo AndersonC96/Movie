@@ -507,54 +507,269 @@ const MovieApp = {
     },
 
     /**
-     * Render cast section
+     * Render cast and crew section
      * @param {Object} credits - Credits data with cast and crew
      * @returns {string} HTML string
      */
     renderCastSection(credits) {
-        if (!credits || !credits.cast || credits.cast.length === 0) {
-            return '';
-        }
+        if (!credits) return '';
 
-        // Get director(s)
-        const directors = (credits.crew || [])
-            .filter(c => c.job === 'Director')
-            .map(d => d.name)
-            .join(', ');
+        const cast = credits.cast || [];
+        const crew = credits.crew || [];
 
-        // Get top 10 cast members
-        const topCast = credits.cast.slice(0, 10);
+        // Group crew by department
+        const crewByDept = {};
+        crew.forEach(person => {
+            const dept = person.department || 'Outros';
+            if (!crewByDept[dept]) crewByDept[dept] = [];
+            crewByDept[dept].push(person);
+        });
+
+        // Key crew roles to highlight
+        const keyRoles = ['Director', 'Writer', 'Screenplay', 'Producer', 'Executive Producer', 'Director of Photography', 'Original Music Composer'];
+        const keyCrew = crew.filter(c => keyRoles.includes(c.job));
+
+        // Initial cast to show (10), rest hidden
+        const initialCastCount = 10;
+        const hasMoreCast = cast.length > initialCastCount;
 
         return `
             <div class="mt-5">
-                ${directors ? `
+                <!-- Key Crew -->
+                ${keyCrew.length > 0 ? `
                     <div class="glass-card mb-4">
-                        <h4><i class="fas fa-video text-primary me-2"></i>Direção</h4>
-                        <p class="mb-0 fs-5">${directors}</p>
+                        <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Equipe Técnica</h4>
+                        <div class="crew-list">
+                            ${this.renderKeyCrewList(keyCrew)}
+                        </div>
                     </div>
                 ` : ''}
                 
-                <div class="glass-card">
-                    <h4 class="mb-4"><i class="fas fa-users text-primary me-2"></i>Elenco Principal</h4>
-                    <div class="cast-grid">
-                        ${topCast.map(actor => `
-                            <div class="cast-card">
-                                <img src="${actor.profile_path
+                <!-- Cast -->
+                ${cast.length > 0 ? `
+                    <div class="glass-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0"><i class="fas fa-users text-primary me-2"></i>Elenco <small class="text-muted">(${cast.length} pessoas)</small></h4>
+                            ${hasMoreCast ? `
+                                <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleCast()">
+                                    <i class="fas fa-chevron-down me-1"></i>
+                                    <span id="castToggleText">Mostrar Todos</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <div class="cast-grid" id="castGrid">
+                            ${cast.slice(0, initialCastCount).map(actor => this.renderCastCard(actor)).join('')}
+                        </div>
+                        ${hasMoreCast ? `
+                            <div class="cast-grid mt-3" id="castGridMore" style="display: none;">
+                                ${cast.slice(initialCastCount).map(actor => this.renderCastCard(actor)).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+                
+                <!-- Full Crew by Department -->
+                ${Object.keys(crewByDept).length > 0 ? `
+                    <div class="glass-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0"><i class="fas fa-cogs text-primary me-2"></i>Equipe Completa <small class="text-muted">(${crew.length} pessoas)</small></h4>
+                            <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleCrew()">
+                                <i class="fas fa-chevron-down me-1"></i>
+                                <span id="crewToggleText">Mostrar</span>
+                            </button>
+                        </div>
+                        <div id="crewSection" style="display: none;">
+                            ${Object.entries(crewByDept).sort((a, b) => a[0].localeCompare(b[0])).map(([dept, members]) => `
+                                <div class="crew-department mb-4">
+                                    <h5 class="text-primary mb-3">${this.translateDepartment(dept)}</h5>
+                                    <div class="row">
+                                        ${members.map(person => `
+                                            <div class="col-md-4 col-6 mb-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="${person.profile_path
+                ? IMAGE_BASE + '/w45' + person.profile_path
+                : '/Movie/public/images/default-user.png'}" 
+                                                        class="rounded-circle" 
+                                                        style="width: 32px; height: 32px; object-fit: cover;"
+                                                        onerror="this.src='/Movie/public/images/default-user.png'">
+                                                    <div style="overflow: hidden;">
+                                                        <div class="text-white small text-truncate">${person.name}</div>
+                                                        <div class="text-muted" style="font-size: 0.7rem;">${this.translateJob(person.job)}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    },
+
+    /**
+     * Render key crew list
+     */
+    renderKeyCrewList(keyCrew) {
+        const grouped = {};
+        keyCrew.forEach(p => {
+            if (!grouped[p.job]) grouped[p.job] = [];
+            grouped[p.job].push(p.name);
+        });
+
+        return Object.entries(grouped).map(([job, names]) => `
+            <div class="crew-item mb-2">
+                <strong class="text-muted">${this.translateJob(job)}:</strong>
+                <span class="ms-2">${names.join(', ')}</span>
+            </div>
+        `).join('');
+    },
+
+    /**
+     * Translate job titles to Portuguese
+     */
+    translateJob(job) {
+        const translations = {
+            // Direction
+            'Director': 'Diretor',
+            'Co-Director': 'Co-Diretor',
+            'Assistant Director': 'Diretor Assistente',
+            'First Assistant Director': 'Primeiro Assistente de Direção',
+            'Second Assistant Director': 'Segundo Assistente de Direção',
+
+            // Writing
+            'Writer': 'Roteirista',
+            'Screenplay': 'Roteiro',
+            'Story': 'História',
+            'Novel': 'Romance',
+            'Characters': 'Personagens',
+            'Original Story': 'História Original',
+
+            // Production
+            'Producer': 'Produtor',
+            'Executive Producer': 'Produtor Executivo',
+            'Co-Producer': 'Co-Produtor',
+            'Associate Producer': 'Produtor Associado',
+            'Line Producer': 'Produtor de Linha',
+
+            // Camera
+            'Director of Photography': 'Diretor de Fotografia',
+            'Cinematographer': 'Diretor de Fotografia',
+            'Camera Operator': 'Operador de Câmera',
+            'Steadicam Operator': 'Operador de Steadicam',
+
+            // Music & Sound
+            'Original Music Composer': 'Compositor',
+            'Music': 'Música',
+            'Music Supervisor': 'Supervisor Musical',
+            'Sound Designer': 'Designer de Som',
+            'Sound Mixer': 'Mixador de Som',
+            'Sound Editor': 'Editor de Som',
+
+            // Editing
+            'Editor': 'Editor',
+            'Film Editor': 'Editor de Filme',
+
+            // Art & Design
+            'Production Designer': 'Designer de Produção',
+            'Art Director': 'Diretor de Arte',
+            'Set Designer': 'Designer de Cenário',
+            'Costume Designer': 'Figurinista',
+            'Makeup Artist': 'Maquiador',
+            'Hairstylist': 'Cabeleireiro',
+
+            // Visual Effects
+            'Visual Effects Supervisor': 'Supervisor de Efeitos Visuais',
+            'VFX Supervisor': 'Supervisor de VFX',
+            'Special Effects': 'Efeitos Especiais',
+
+            // Casting
+            'Casting': 'Elenco',
+            'Casting Director': 'Diretor de Elenco',
+
+            // Other common roles
+            'Stunt Coordinator': 'Coordenador de Dublês',
+            'Production Manager': 'Gerente de Produção',
+            'Unit Production Manager': 'Gerente de Produção',
+            'Location Manager': 'Gerente de Locações',
+            'Script Supervisor': 'Supervisor de Roteiro',
+            'Gaffer': 'Eletricista Chefe',
+            'Grip': 'Maquinista',
+            'Key Grip': 'Maquinista Chefe'
+        };
+
+        return translations[job] || job;
+    },
+
+    /**
+     * Translate department names to Portuguese
+     */
+    translateDepartment(dept) {
+        const translations = {
+            'Acting': 'Atuação',
+            'Art': 'Arte',
+            'Camera': 'Câmera',
+            'Costume & Make-Up': 'Figurino e Maquiagem',
+            'Crew': 'Equipe',
+            'Directing': 'Direção',
+            'Editing': 'Edição',
+            'Lighting': 'Iluminação',
+            'Production': 'Produção',
+            'Sound': 'Som',
+            'Visual Effects': 'Efeitos Visuais',
+            'Writing': 'Roteiro',
+            'Actors': 'Atores'
+        };
+
+        return translations[dept] || dept;
+    },
+
+    /**
+     * Render a single cast card
+     */
+    renderCastCard(actor) {
+        return `
+            <div class="cast-card">
+                <img src="${actor.profile_path
                 ? IMAGE_BASE + '/w185' + actor.profile_path
                 : '/Movie/public/images/default-user.png'}" 
-                                    alt="${actor.name}"
-                                    class="cast-photo"
-                                    onerror="this.src='/Movie/public/images/default-user.png'">
-                                <div class="cast-info">
-                                    <strong>${actor.name}</strong>
-                                    <small>${actor.character || 'N/A'}</small>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+                    alt="${actor.name}"
+                    class="cast-photo"
+                    onerror="this.src='/Movie/public/images/default-user.png'">
+                <div class="cast-info">
+                    <strong>${actor.name}</strong>
+                    <small>${actor.character || 'N/A'}</small>
                 </div>
             </div>
         `;
+    },
+
+    /**
+     * Toggle cast visibility
+     */
+    toggleCast() {
+        const moreGrid = document.getElementById('castGridMore');
+        const toggleText = document.getElementById('castToggleText');
+        if (moreGrid) {
+            const isHidden = moreGrid.style.display === 'none';
+            moreGrid.style.display = isHidden ? 'grid' : 'none';
+            toggleText.textContent = isHidden ? 'Mostrar Menos' : 'Mostrar Todos';
+        }
+    },
+
+    /**
+     * Toggle crew visibility
+     */
+    toggleCrew() {
+        const section = document.getElementById('crewSection');
+        const toggleText = document.getElementById('crewToggleText');
+        if (section) {
+            const isHidden = section.style.display === 'none';
+            section.style.display = isHidden ? 'block' : 'none';
+            toggleText.textContent = isHidden ? 'Ocultar' : 'Mostrar';
+        }
     }
 };
 
