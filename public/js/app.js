@@ -434,6 +434,7 @@ const MovieApp = {
                         
                         <div class="col-md-8">
                             <h1 class="movie-title">${movie.title}</h1>
+                            ${movie.tagline ? `<p class="movie-tagline fst-italic text-muted mb-2">"${movie.tagline}"</p>` : ''}
                             <p class="movie-meta">
                                 <span class="movie-year">${year}</span>
                                 <span class="movie-genres">${genres}</span>
