@@ -47,11 +47,11 @@ class AuthController extends Controller
         }
 
         $username = $this->post('username', '');
-        $password = $this->post('password', '');
+        $password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
         // Validate inputs
         if (empty($username) || empty($password)) {
-            $this->redirect('/Movie/public/guest#error1');
+            $this->redirect('/Movie/public/#error1');
             return;
         }
 
@@ -59,7 +59,7 @@ class AuthController extends Controller
         $user = $this->userModel->authenticate($username, $password);
 
         if ($user === null) {
-            $this->redirect('/Movie/public/guest#error1');
+            $this->redirect('/Movie/public/#error1');
             return;
         }
 

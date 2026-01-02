@@ -22,7 +22,7 @@ $message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once dirname(__DIR__, 3) . '/../../autoload.php';
+    require_once dirname(__DIR__, 4) . '/autoload.php';
     
     $requestModel = new \App\Models\Request();
     

@@ -17,7 +17,7 @@ if (!isset($_SESSION['username']) || $_SESSION['status'] !== 'admin') {
     exit;
 }
 
-require_once dirname(__DIR__, 3) . '/../../autoload.php';
+require_once dirname(__DIR__, 4) . '/autoload.php';
 
 $userModel = new \App\Models\User();
 
