@@ -535,17 +535,7 @@ const MovieApp = {
 
         return `
             <div class="mt-5">
-                <!-- Key Crew -->
-                ${keyCrew.length > 0 ? `
-                    <div class="glass-card mb-4">
-                        <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Equipe Técnica</h4>
-                        <div class="crew-list">
-                            ${this.renderKeyCrewList(keyCrew)}
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <!-- Cast -->
+                <!-- Cast (Elenco) - FIRST -->
                 ${cast.length > 0 ? `
                     <div class="glass-card mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -565,6 +555,16 @@ const MovieApp = {
                                 ${cast.slice(initialCastCount).map(actor => this.renderCastCard(actor)).join('')}
                             </div>
                         ` : ''}
+                    </div>
+                ` : ''}
+                
+                <!-- Key Crew (Equipe Técnica) - SECOND -->
+                ${keyCrew.length > 0 ? `
+                    <div class="glass-card mb-4">
+                        <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Equipe Técnica</h4>
+                        <div class="crew-list">
+                            ${this.renderKeyCrewList(keyCrew)}
+                        </div>
                     </div>
                 ` : ''}
                 
