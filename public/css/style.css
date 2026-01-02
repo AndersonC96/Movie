@@ -787,3 +787,77 @@ a:hover {
         padding: var(--spacing-md);
     }
 }
+
+/* ==================== Cast Section ==================== */
+.cast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.cast-card {
+    text-align: center;
+    padding: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.cast-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+}
+
+.cast-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+    transition: all var(--transition-fast);
+}
+
+.cast-card:hover .cast-photo {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 20px rgba(106, 192, 69, 0.4);
+}
+
+.cast-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cast-info strong {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cast-info small {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .cast-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .cast-photo {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cast-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

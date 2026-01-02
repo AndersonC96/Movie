@@ -499,6 +499,59 @@ const MovieApp = {
                             </div>
                         </div>
                     </div>
+                    
+                    ${this.renderCastSection(movie.credits)}
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Render cast section
+     * @param {Object} credits - Credits data with cast and crew
+     * @returns {string} HTML string
+     */
+    renderCastSection(credits) {
+        if (!credits || !credits.cast || credits.cast.length === 0) {
+            return '';
+        }
+
+        // Get director(s)
+        const directors = (credits.crew || [])
+            .filter(c => c.job === 'Director')
+            .map(d => d.name)
+            .join(', ');
+
+        // Get top 10 cast members
+        const topCast = credits.cast.slice(0, 10);
+
+        return `
+            <div class="mt-5">
+                ${directors ? `
+                    <div class="glass-card mb-4">
+                        <h4><i class="fas fa-video text-primary me-2"></i>Direção</h4>
+                        <p class="mb-0 fs-5">${directors}</p>
+                    </div>
+                ` : ''}
+                
+                <div class="glass-card">
+                    <h4 class="mb-4"><i class="fas fa-users text-primary me-2"></i>Elenco Principal</h4>
+                    <div class="cast-grid">
+                        ${topCast.map(actor => `
+                            <div class="cast-card">
+                                <img src="${actor.profile_path
+                ? IMAGE_BASE + '/w185' + actor.profile_path
+                : '/Movie/public/images/default-user.png'}" 
+                                    alt="${actor.name}"
+                                    class="cast-photo"
+                                    onerror="this.src='/Movie/public/images/default-user.png'">
+                                <div class="cast-info">
+                                    <strong>${actor.name}</strong>
+                                    <small>${actor.character || 'N/A'}</small>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
