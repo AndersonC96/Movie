@@ -793,7 +793,7 @@ const MovieApp = {
         const moreMovies = allMovies.slice(initialCount);
 
         return `
-            <div class="mt-5">
+            <div class="mt-4 mb-5">
                 <div class="glass-card">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="mb-0"><i class="fas fa-film text-primary me-2"></i>Filmes Similares</h4>
