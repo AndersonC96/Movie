@@ -861,3 +861,84 @@ a:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ==================== Similar Movies ==================== */
+.similar-movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.similar-movie-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    border: 1px solid transparent;
+}
+
+.similar-movie-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--shadow-glow);
+}
+
+.similar-movie-poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.similar-movie-card:hover .similar-movie-poster {
+    transform: scale(1.05);
+}
+
+.similar-movie-info {
+    padding: var(--spacing-sm);
+}
+
+.similar-movie-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.similar-movie-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.similar-movie-year {
+    color: var(--text-muted);
+}
+
+.similar-movie-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+}
+
+.similar-movie-rating i {
+    font-size: 0.7rem;
+}
+
+@media (max-width: 768px) {
+    .similar-movies-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .similar-movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

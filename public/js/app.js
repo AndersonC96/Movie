@@ -501,6 +501,8 @@ const MovieApp = {
                     </div>
                     
                     ${this.renderCastSection(movie.credits)}
+                    
+                    ${this.renderSimilarMovies(movie.similar)}
                 </div>
             </div>
         `;
@@ -770,6 +772,49 @@ const MovieApp = {
             section.style.display = isHidden ? 'block' : 'none';
             toggleText.textContent = isHidden ? 'Ocultar' : 'Mostrar';
         }
+    },
+
+    /**
+     * Render similar movies section
+     * @param {Object} similar - Similar movies data
+     * @returns {string} HTML string
+     */
+    renderSimilarMovies(similar) {
+        if (!similar || !similar.results || similar.results.length === 0) {
+            return '';
+        }
+
+        const movies = similar.results.slice(0, 10); // Show max 10
+
+        return `
+            <div class="mt-5">
+                <div class="glass-card">
+                    <h4 class="mb-4"><i class="fas fa-film text-primary me-2"></i>Filmes Similares</h4>
+                    <div class="similar-movies-grid">
+                        ${movies.map(movie => `
+                            <div class="similar-movie-card" onclick="MovieApp.selectMovie(${movie.id})">
+                                <img src="${movie.poster_path
+                ? IMAGE_BASE + '/w185' + movie.poster_path
+                : PLACEHOLDER_IMAGE}" 
+                                    alt="${movie.title}"
+                                    class="similar-movie-poster"
+                                    onerror="this.src='${PLACEHOLDER_IMAGE}'">
+                                <div class="similar-movie-info">
+                                    <h6 class="similar-movie-title">${movie.title}</h6>
+                                    <div class="similar-movie-meta">
+                                        <span class="similar-movie-year">${UI.getYear(movie.release_date)}</span>
+                                        <span class="similar-movie-rating">
+                                            <i class="fas fa-star text-warning"></i>
+                                            ${UI.formatRating(movie.vote_average)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 };
 
