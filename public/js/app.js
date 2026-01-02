@@ -784,7 +784,7 @@ const MovieApp = {
             return '';
         }
 
-        const movies = similar.results.slice(0, 10); // Show max 10
+        const movies = similar.results; // Show all
 
         return `
             <div class="mt-5">
