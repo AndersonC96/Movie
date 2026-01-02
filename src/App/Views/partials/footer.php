@@ -2,8 +2,7 @@
     <footer class="footer">
         <div class="container">
             <p>
-                <i class="fas fa-code"></i> Desenvolvido com 
-                <i class="fas fa-heart text-primary"></i> por 
+                <i class="fas fa-code"></i> Desenvolvido por 
                 <a href="https://github.com/AndersonC96" target="_blank">Anderson</a>
             </p>
             <p class="text-muted small">
