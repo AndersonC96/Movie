@@ -494,7 +494,7 @@ const MovieApp = {
                         </div>
                     </div>
                     
-                    ${this.renderVideosSection(movie.videos)}
+                    ${this.renderMovieEmbed(movie)}
                     
                     ${this.renderCastSection(movie.credits, movie.similar)}
                 </div>
@@ -828,43 +828,29 @@ const MovieApp = {
      * @param {Object} videos - Videos data from TMDb
      * @returns {string} HTML string
      */
-    renderVideosSection(videos) {
-        if (!videos || !videos.results || videos.results.length === 0) {
+    /**
+     * Render movie embed player
+     * @param {Object} movie - Movie data
+     * @returns {string} HTML string
+     */
+    renderMovieEmbed(movie) {
+        if (!movie || !movie.imdb_id) {
             return '';
         }
-
-        // Filter for YouTube trailers and teasers
-        const youtubeVideos = videos.results.filter(v =>
-            v.site === 'YouTube' &&
-            ['Trailer', 'Teaser', 'Official Trailer'].includes(v.type)
-        );
-
-        if (youtubeVideos.length === 0) {
-            return '';
-        }
-
-        // Get first 3 videos
-        const displayVideos = youtubeVideos.slice(0, 3);
 
         return `
             <div class="mt-5 mb-4">
                 <div class="glass-card">
-                    <h4 class="mb-4"><i class="fas fa-play-circle text-primary me-2"></i>Trailers e Vídeos</h4>
-                    <div class="videos-grid">
-                        ${displayVideos.map(video => `
-                            <div class="video-item">
-                                <div class="video-wrapper">
-                                    <iframe 
-                                        src="https://www.youtube.com/embed/${video.key}" 
-                                        title="${video.name}"
-                                        frameborder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowfullscreen>
-                                    </iframe>
-                                </div>
-                                <p class="video-title">${video.name}</p>
-                            </div>
-                        `).join('')}
+                    <h4 class="mb-4"><i class="fas fa-play-circle text-primary me-2"></i>Filme Completo</h4>
+                    <div class="video-container">
+                        <iframe 
+                            src="https://superflixapi.buzz/filme/${movie.imdb_id}" 
+                            allow="autoplay; encrypted-media; picture-in-picture" 
+                            allowfullscreen 
+                            frameborder="0" 
+                            scrolling="no" 
+                            style="width:100%;aspect-ratio:16/9;height:auto;max-width:100%;border:0;border-radius:12px;">
+                        </iframe>
                     </div>
                 </div>
             </div>
