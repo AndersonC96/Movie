@@ -441,7 +441,6 @@ const MovieApp = {
                         
                         <div class="col-md-8">
                             <h1 class="movie-title">${movie.title}</h1>
-                            <h1 class="movie-title">${movie.title}</h1>
                             ${movie.tagline ? `<p class="movie-tagline fst-italic text-muted mb-2">"${movie.tagline}"</p>` : ''}
                             ${this.renderSocialLinks(movie.external_ids, movie.homepage)}
                             <p class="movie-meta">
@@ -490,7 +489,6 @@ const MovieApp = {
                                     <strong>Produtoras</strong>
                                     <span>${companies || 'Não informado'}</span>
                                 </div>
-                                ${this.renderWatchProviders(movie['watch/providers'])}
                                 ${this.renderWatchProviders(movie['watch/providers'])}
                             </div>
                             
@@ -768,6 +766,21 @@ const MovieApp = {
         }
     },
 
+    toggleGallery() {
+        const hiddenGallery = document.getElementById('hiddenGallery');
+        const toggleText = document.getElementById('galleryToggleText');
+        const toggleIcon = document.getElementById('galleryToggleIcon');
+
+        if (hiddenGallery) {
+            const isHidden = hiddenGallery.style.display === 'none';
+            hiddenGallery.style.display = isHidden ? 'grid' : 'none';
+            toggleText.textContent = isHidden ? 'Ver Menos' : 'Ver Mais';
+            if (toggleIcon) {
+                toggleIcon.className = isHidden ? 'fas fa-chevron-up ms-2' : 'fas fa-chevron-down ms-2';
+            }
+        }
+    },
+
     /**
      * Toggle crew visibility
      */
@@ -903,21 +916,42 @@ const MovieApp = {
     renderGallery(images) {
         if (!images || !images.backdrops || images.backdrops.length === 0) return '';
 
-        // Show up to 8 backdrops, exclude the first one used as main backdrop if desired, 
-        // but here we just take the top rated ones
-        const backdrops = images.backdrops.slice(0, 8);
+        const allBackdrops = images.backdrops;
+        const initialCount = 5;
+        const initialBackdrops = allBackdrops.slice(0, initialCount);
+        const hiddenBackdrops = allBackdrops.slice(initialCount, 20); // Limit total to 20
+        const hasMore = hiddenBackdrops.length > 0;
 
         return `
             <div class="mt-4 mb-5">
                 <div class="glass-card">
-                    <h4 class="mb-4"><i class="fas fa-images text-primary me-2"></i>Galeria</h4>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0"><i class="fas fa-images text-primary me-2"></i>Galeria</h4>
+                        ${hasMore ? `
+                            <button class="btn btn-sm btn-outline-light rounded-pill" onclick="MovieApp.toggleGallery()">
+                                <span id="galleryToggleText">Ver Mais</span>
+                                <i id="galleryToggleIcon" class="fas fa-chevron-down ms-2"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+
                     <div class="gallery-grid">
-                        ${backdrops.map(img => `
+                        ${initialBackdrops.map(img => `
                             <div class="gallery-item">
                                 <img src="${IMAGE_BASE + '/w780' + img.file_path}" alt="Backdrop" loading="lazy">
                             </div>
                         `).join('')}
                     </div>
+
+                    ${hasMore ? `
+                        <div id="hiddenGallery" class="gallery-grid mt-4" style="display: none;">
+                            ${hiddenBackdrops.map(img => `
+                                <div class="gallery-item">
+                                    <img src="${IMAGE_BASE + '/w780' + img.file_path}" alt="Backdrop" loading="lazy">
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
