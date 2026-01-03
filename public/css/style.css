@@ -992,35 +992,43 @@ a:hover {
 .providers-list {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
 }
 
 .provider-badge {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    background: rgba(255, 255, 255, 0.08);
-    padding: 4px 10px 4px 4px;
-    border-radius: var(--radius-full);
-    transition: all var(--transition-fast);
+    gap: var(--spacing-sm);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 16px 8px 8px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-normal);
+    cursor: default;
 }
 
 .provider-badge:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(106, 192, 69, 0.2) 0%, rgba(106, 192, 69, 0.1) 100%);
+    border-color: var(--color-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(106, 192, 69, 0.2);
 }
 
 .provider-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .provider-badge span {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
     white-space: nowrap;
 }
 
@@ -1030,6 +1038,11 @@ a:hover {
     }
     
     .provider-badge {
-        padding: 4px;
+        padding: 6px;
+    }
+    
+    .provider-icon {
+        width: 32px;
+        height: 32px;
     }
 }
