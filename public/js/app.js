@@ -544,9 +544,9 @@ const MovieApp = {
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4 class="mb-0"><i class="fas fa-users text-primary me-2"></i>Elenco <small class="text-muted">(${cast.length} pessoas)</small></h4>
                             ${hasMoreCast ? `
-                                <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleCast()">
-                                    <i class="fas fa-chevron-down me-1"></i>
-                                    <span id="castToggleText">Mostrar Todos</span>
+                                <button class="btn btn-sm btn-outline-custom rounded-pill arrow-btn" onclick="MovieApp.toggleCast()">
+                                    <span id="castToggleText">Ver Mais</span>
+                                    <i class="fas fa-chevron-down ms-2"></i>
                                 </button>
                             ` : ''}
                         </div>
@@ -579,9 +579,9 @@ const MovieApp = {
                     <div class="glass-card">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4 class="mb-0"><i class="fas fa-cogs text-primary me-2"></i>Equipe Completa <small class="text-muted">(${crew.length} pessoas)</small></h4>
-                            <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleCrew()">
-                                <i class="fas fa-chevron-down me-1"></i>
-                                <span id="crewToggleText">Mostrar</span>
+                            <button class="btn btn-sm btn-outline-custom rounded-pill arrow-btn" onclick="MovieApp.toggleCrew()">
+                                <span id="crewToggleText">Ver Mais</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
                             </button>
                         </div>
                         <div id="crewSection" style="display: none;">
@@ -762,7 +762,9 @@ const MovieApp = {
         if (moreGrid) {
             const isHidden = moreGrid.style.display === 'none';
             moreGrid.style.display = isHidden ? 'grid' : 'none';
-            toggleText.textContent = isHidden ? 'Mostrar Menos' : 'Mostrar Todos';
+            toggleText.textContent = isHidden ? 'Ver Menos' : 'Ver Mais';
+            const icon = document.querySelector('[onclick="MovieApp.toggleCast()"] i');
+            if (icon) icon.className = isHidden ? 'fas fa-chevron-up ms-2' : 'fas fa-chevron-down ms-2';
         }
     },
 
@@ -790,7 +792,9 @@ const MovieApp = {
         if (section) {
             const isHidden = section.style.display === 'none';
             section.style.display = isHidden ? 'block' : 'none';
-            toggleText.textContent = isHidden ? 'Ocultar' : 'Mostrar';
+            toggleText.textContent = isHidden ? 'Ver Menos' : 'Ver Mais';
+            const icon = document.querySelector('[onclick="MovieApp.toggleCrew()"] i');
+            if (icon) icon.className = isHidden ? 'fas fa-chevron-up ms-2' : 'fas fa-chevron-down ms-2';
         }
     },
 
@@ -928,7 +932,7 @@ const MovieApp = {
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="mb-0"><i class="fas fa-images text-primary me-2"></i>Galeria</h4>
                         ${hasMore ? `
-                            <button class="btn btn-sm btn-outline-light rounded-pill" onclick="MovieApp.toggleGallery()">
+                            <button class="btn btn-sm btn-outline-custom rounded-pill arrow-btn" onclick="MovieApp.toggleGallery()">
                                 <span id="galleryToggleText">Ver Mais</span>
                                 <i id="galleryToggleIcon" class="fas fa-chevron-down ms-2"></i>
                             </button>
@@ -994,9 +998,9 @@ const MovieApp = {
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="mb-0"><i class="fas fa-film text-primary me-2"></i>Filmes Similares</h4>
                         ${hasMore ? `
-                            <button class="btn btn-sm btn-outline-success" onclick="MovieApp.toggleSimilar()">
-                                <i class="fas fa-chevron-down me-1"></i>
-                                <span id="similarToggleText">Mostrar Mais</span>
+                            <button class="btn btn-sm btn-outline-custom rounded-pill arrow-btn" onclick="MovieApp.toggleSimilar()">
+                                <span id="similarToggleText">Ver Mais</span>
+                                <i class="fas fa-chevron-down ms-2"></i>
                             </button>
                         ` : ''}
                     </div>
@@ -1048,7 +1052,9 @@ const MovieApp = {
         if (moreGrid) {
             const isHidden = moreGrid.style.display === 'none';
             moreGrid.style.display = isHidden ? 'grid' : 'none';
-            toggleText.textContent = isHidden ? 'Mostrar Menos' : 'Mostrar Mais';
+            toggleText.textContent = isHidden ? 'Ver Menos' : 'Ver Mais';
+            const icon = document.querySelector('[onclick="MovieApp.toggleSimilar()"] i');
+            if (icon) icon.className = isHidden ? 'fas fa-chevron-up ms-2' : 'fas fa-chevron-down ms-2';
         }
     }
 };
