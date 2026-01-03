@@ -441,7 +441,9 @@ const MovieApp = {
                         
                         <div class="col-md-8">
                             <h1 class="movie-title">${movie.title}</h1>
+                            <h1 class="movie-title">${movie.title}</h1>
                             ${movie.tagline ? `<p class="movie-tagline fst-italic text-muted mb-2">"${movie.tagline}"</p>` : ''}
+                            ${this.renderSocialLinks(movie.external_ids, movie.homepage)}
                             <p class="movie-meta">
                                 <span class="movie-year">${year}</span>
                                 <span class="movie-genres">${genres}</span>
@@ -456,6 +458,7 @@ const MovieApp = {
                             <div class="glass-card mt-4">
                                 <h3>Sinopse</h3>
                                 <p>${movie.overview || 'Sinopse não disponível.'}</p>
+                                ${this.renderKeywords(movie.keywords)}
                             </div>
                             
                             <div class="movie-info-grid mt-4">
@@ -488,13 +491,18 @@ const MovieApp = {
                                     <span>${companies || 'Não informado'}</span>
                                 </div>
                                 ${this.renderWatchProviders(movie['watch/providers'])}
+                                ${this.renderWatchProviders(movie['watch/providers'])}
                             </div>
+                            
+                            ${this.renderCollection(movie.belongs_to_collection)}
                             
                             </div>
                         </div>
                     </div>
                     
                     ${this.renderMovieEmbed(movie)}
+                    
+                    ${this.renderGallery(movie.images)}
                     
                     ${this.renderCastSection(movie.credits, movie.similar)}
                 </div>
@@ -851,6 +859,79 @@ const MovieApp = {
                             scrolling="no" 
                             style="width:100%;aspect-ratio:16/9;height:auto;max-width:100%;border:0;border-radius:12px;">
                         </iframe>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderKeywords(keywords) {
+        if (!keywords || !keywords.keywords || keywords.keywords.length === 0) return '';
+
+        return `
+            <div class="mt-3">
+                <div class="d-flex flex-wrap gap-2">
+                    ${keywords.keywords.map(k => `<span class="keyword-tag">#${k.name}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    },
+
+    renderSocialLinks(externalIds, homepage) {
+        if (!externalIds) return '';
+
+        const links = [];
+        if (homepage) links.push({ icon: 'fas fa-link', url: homepage, title: 'Website' });
+        if (externalIds.facebook_id) links.push({ icon: 'fab fa-facebook', url: `https://facebook.com/${externalIds.facebook_id}`, title: 'Facebook' });
+        if (externalIds.instagram_id) links.push({ icon: 'fab fa-instagram', url: `https://instagram.com/${externalIds.instagram_id}`, title: 'Instagram' });
+        if (externalIds.twitter_id) links.push({ icon: 'fab fa-twitter', url: `https://twitter.com/${externalIds.twitter_id}`, title: 'Twitter' });
+        if (externalIds.imdb_id) links.push({ icon: 'fab fa-imdb', url: `https://imdb.com/title/${externalIds.imdb_id}`, title: 'IMDb' });
+
+        if (links.length === 0) return '';
+
+        return `
+            <div class="social-links mb-3">
+                ${links.map(l => `
+                    <a href="${l.url}" target="_blank" class="social-link" title="${l.title}">
+                        <i class="${l.icon}"></i>
+                    </a>
+                `).join('')}
+            </div>
+        `;
+    },
+
+    renderGallery(images) {
+        if (!images || !images.backdrops || images.backdrops.length === 0) return '';
+
+        // Show up to 8 backdrops, exclude the first one used as main backdrop if desired, 
+        // but here we just take the top rated ones
+        const backdrops = images.backdrops.slice(0, 8);
+
+        return `
+            <div class="mt-4 mb-5">
+                <div class="glass-card">
+                    <h4 class="mb-4"><i class="fas fa-images text-primary me-2"></i>Galeria</h4>
+                    <div class="gallery-grid">
+                        ${backdrops.map(img => `
+                            <div class="gallery-item">
+                                <img src="${IMAGE_BASE + '/w780' + img.file_path}" alt="Backdrop" loading="lazy">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderCollection(collection) {
+        if (!collection) return '';
+
+        return `
+            <div class="mt-4">
+                <div class="collection-banner" style="background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('${IMAGE_BASE + '/w1280' + collection.backdrop_path}')">
+                    <div class="p-4">
+                        <h3 class="text-white mb-2">Parte da coleção <span class="text-primary">${collection.name}</span></h3>
+                        <button class="btn btn-sm btn-outline-light rounded-pill">Ver Coleção</button>
                     </div>
                 </div>
             </div>
