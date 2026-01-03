@@ -1202,3 +1202,24 @@ a:hover {
     box-shadow: 0 0 15px rgba(106, 192, 69, 0.4);
     transform: translateY(-2px);
 }
+
+/* ==================== Filters ==================== */
+.form-select {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    box-shadow: none !important;
+}
+
+.form-select:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(106, 192, 69, 0.25) !important;
+}
+
+.form-select option {
+    background-color: #1a1a1a;
+    color: var(--text-primary);
+    padding: 10px;
+}

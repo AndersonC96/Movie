@@ -40,6 +40,29 @@ include $viewsPath . 'partials/navbar.php';
                 </button>
             </form>
         </div>
+
+        <!-- Filters -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="d-flex gap-2">
+                    <select id="genreSelect" class="form-select bg-dark text-white border-secondary">
+                        <option value="">Todos os Gêneros</option>
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end align-items-center gap-2">
+                    <label class="text-muted small text-nowrap">Ordenar por:</label>
+                    <select id="sortSelect" class="form-select bg-dark text-white border-secondary w-auto">
+                        <option value="popularity.desc">Mais Populares</option>
+                        <option value="vote_average.desc">Melhor Avaliados</option>
+                        <option value="primary_release_date.desc">Lançamentos</option>
+                        <option value="title.asc">A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         
         <!-- Movies Grid -->
         <div id="movies" class="movie-grid">
@@ -56,6 +79,13 @@ include $viewsPath . 'partials/navbar.php';
             <div class="movie-card">
                 <div class="skeleton skeleton-card"></div>
             </div>
+        </div>
+
+        <!-- Load More -->
+        <div class="text-center mt-5 mb-5">
+            <button id="loadMoreBtn" class="btn btn-outline-custom rounded-pill px-5 py-2" style="display: none;">
+                Carregar Mais
+            </button>
         </div>
     </div>
 </section>

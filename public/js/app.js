@@ -69,6 +69,23 @@ const MovieAPI = {
     },
 
     /**
+     * Discover movies with options
+     * @param {Object} options - Filter and sort options
+     * @returns {Promise<Object>}
+     */
+    discoverMovies(options = {}) {
+        return this.fetch('discover', options);
+    },
+
+    /**
+     * Get genre list
+     * @returns {Promise<Object>}
+     */
+    getGenres() {
+        return this.fetch('genres');
+    },
+
+    /**
      * Get movie details
      * @param {number} id - Movie ID
      * @returns {Promise<Object>}
@@ -229,11 +246,23 @@ const UI = {
  * Main Application
  */
 const MovieApp = {
+    // App State
+    state: {
+        page: 1,
+        genre: '',
+        sortBy: 'popularity.desc',
+        search: '',
+        isLoading: false,
+        totalPages: 1
+    },
+
     /**
      * Initialize application
      */
     init() {
         this.bindEvents();
+        this.bindFilterEvents();
+        this.loadGenres();
         this.loadInitialContent();
     },
 
@@ -262,76 +291,197 @@ const MovieApp = {
     },
 
     /**
+     * Bind filter and load more events
+     */
+    bindFilterEvents() {
+        // Genre Filter
+        const genreSelect = document.getElementById('genreSelect');
+        if (genreSelect) {
+            genreSelect.addEventListener('change', (e) => {
+                this.state.genre = e.target.value;
+                this.state.page = 1;
+                this.state.search = ''; // Clear search when filtering
+                const searchInput = document.getElementById('searchText');
+                if (searchInput) searchInput.value = '';
+                this.loadMovies(false);
+            });
+        }
+
+        // Sort Filter
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                this.state.sortBy = e.target.value;
+                this.state.page = 1;
+                this.loadMovies(false);
+            });
+        }
+
+        // Load More Button
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                this.state.page++;
+                this.loadMovies(true);
+            });
+        }
+    },
+
+    /**
+     * Load genres for filter
+     */
+    async loadGenres() {
+        const select = document.getElementById('genreSelect');
+        if (!select) return;
+
+        try {
+            const data = await MovieAPI.getGenres();
+            if (data.genres) {
+                data.genres.forEach(genre => {
+                    const option = document.createElement('option');
+                    option.value = genre.id;
+                    option.textContent = genre.name;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading genres:', error);
+        }
+    },
+
+    /**
      * Load initial content
      */
     async loadInitialContent() {
         const topMoviesContainer = document.getElementById('topMovies1');
         const moviesContainer = document.getElementById('movies');
 
-        // Check for search param in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchQuery = urlParams.get('search');
-
-        if (searchQuery && moviesContainer) {
-            // Remove "Coleção" or "Collection" from search term for better results
-            const cleanQuery = searchQuery.replace(/\s*(:|)\s*(Coleção|Collection)\s*$/i, '');
-
-            const searchInput = document.getElementById('searchText');
-            if (searchInput) {
-                searchInput.value = cleanQuery;
-            }
-
-            // Perform search
-            moviesContainer.innerHTML = UI.createSkeletonCards(8);
-            try {
-                const data = await MovieAPI.searchMovies(cleanQuery);
-                this.displayMovies(data.results || []);
-
-                // Update title if exists
-                const titleEl = document.querySelector('.section-title');
-                if (titleEl) {
-                    titleEl.textContent = `Resultados para: "${cleanQuery}"`;
-                }
-            } catch (error) {
-                UI.showToast('Erro ao buscar filmes', 'error');
-            }
+        // Home Page
+        if (topMoviesContainer) {
+            await this.loadTopRatedMovies();
             return;
         }
 
-        if (topMoviesContainer) {
-            await this.loadTopRatedMovies();
+        // Browse Page
+        if (moviesContainer) {
+            // Check for search param in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+
+            if (searchQuery) {
+                // Clean up query
+                const cleanQuery = searchQuery.replace(/\s*(:|)\s*(Coleção|Collection)\s*$/i, '');
+                this.state.search = cleanQuery;
+
+                const searchInput = document.getElementById('searchText');
+                if (searchInput) searchInput.value = cleanQuery;
+            }
+
+            await this.loadMovies(false);
+        }
+    },
+
+    /**
+     * Load movies based on current state
+     * @param {boolean} append - Sort options
+     */
+    async loadMovies(append = false) {
+        if (this.state.isLoading) return;
+        this.state.isLoading = true;
+
+        const container = document.getElementById('movies');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const titleEl = document.querySelector('.section-title h2');
+
+        if (!container) {
+            this.state.isLoading = false;
+            return;
         }
 
-        if (moviesContainer && !topMoviesContainer) {
-            await this.loadPopularMovies();
+        if (!append) {
+            container.innerHTML = UI.createSkeletonCards(8);
+            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        } else {
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'Carregando...';
+            }
+        }
+
+        try {
+            let data;
+
+            if (this.state.search) {
+                data = await MovieAPI.searchMovies(this.state.search, this.state.page);
+                if (titleEl) titleEl.innerHTML = `<i class="fas fa-search text-primary"></i> Resultados para: "${this.state.search}"`;
+            } else {
+                data = await MovieAPI.discoverMovies({
+                    page: this.state.page,
+                    sort_by: this.state.sortBy,
+                    with_genres: this.state.genre
+                });
+
+                if (titleEl) {
+                    if (this.state.genre) {
+                        const genreSelect = document.getElementById('genreSelect');
+                        const genreName = genreSelect.options[genreSelect.selectedIndex].text;
+                        titleEl.innerHTML = `<i class="fas fa-film text-primary"></i> ${genreName}`;
+                    } else {
+                        titleEl.innerHTML = `<i class="fas fa-film text-primary"></i> Explorar Filmes`;
+                    }
+                }
+            }
+
+            this.state.totalPages = data.total_pages;
+            this.displayMovies(data.results || [], append);
+
+            if (loadMoreBtn) {
+                const hasMore = this.state.page < this.state.totalPages;
+                loadMoreBtn.style.display = hasMore ? 'inline-block' : 'none';
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Carregar Mais';
+            }
+
+        } catch (error) {
+            console.error('Error loading movies:', error);
+            if (!append) {
+                container.innerHTML = '<p class="text-center text-danger mt-5">Erro ao carregar filmes. Tente novamente.</p>';
+            } else {
+                UI.showToast('Erro ao carregar mais filmes', 'error');
+                if (loadMoreBtn) {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.textContent = 'Carregar Mais';
+                }
+            }
+        } finally {
+            this.state.isLoading = false;
         }
     },
 
     /**
      * Handle search
      */
-    async handleSearch() {
+    handleSearch() {
         const searchInput = document.getElementById('searchText');
-        const moviesContainer = document.getElementById('movies');
-
-        if (!searchInput || !moviesContainer) return;
+        if (!searchInput) return;
 
         const query = searchInput.value.trim();
-
-        if (!query) {
-            await this.loadPopularMovies();
+        if (query.length === 0) {
+            this.state.search = '';
+            this.state.page = 1;
+            this.loadMovies(false);
             return;
         }
 
-        moviesContainer.innerHTML = UI.createSkeletonCards(8);
+        this.state.search = query;
+        this.state.page = 1;
 
-        try {
-            const data = await MovieAPI.searchMovies(query);
-            this.displayMovies(data.results || []);
-        } catch (error) {
-            UI.showToast('Erro ao buscar filmes', 'error');
-            moviesContainer.innerHTML = '<p class="text-center text-muted">Erro ao carregar filmes</p>';
-        }
+        // Reset filters
+        this.state.genre = '';
+        const genreSelect = document.getElementById('genreSelect');
+        if (genreSelect) genreSelect.value = '';
+
+        this.loadMovies(false);
     },
 
     /**
@@ -377,16 +527,22 @@ const MovieApp = {
      * Display movies in grid
      * @param {Array} movies - Movies array
      */
-    displayMovies(movies) {
+    displayMovies(movies, append = false) {
         const container = document.getElementById('movies');
         if (!container) return;
 
-        if (movies.length === 0) {
-            container.innerHTML = '<p class="text-center text-muted mt-5">Nenhum filme encontrado</p>';
+        if (movies.length === 0 && !append) {
+            container.innerHTML = '<div class="col-12 text-center mt-5"><p class="text-muted">Nenhum filme encontrado</p></div>';
             return;
         }
 
-        container.innerHTML = movies.map(m => UI.createMovieCard(m)).join('');
+        const cardsHtml = movies.map(m => UI.createMovieCard(m)).join('');
+
+        if (append) {
+            container.insertAdjacentHTML('beforeend', cardsHtml);
+        } else {
+            container.innerHTML = cardsHtml;
+        }
     },
 
     /**

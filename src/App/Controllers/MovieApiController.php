@@ -115,6 +115,7 @@ class MovieApiController extends Controller
         $this->fetchAndReturn($url);
     }
 
+
     /**
      * Get movie details with extended info
      * 
