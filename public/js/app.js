@@ -268,6 +268,36 @@ const MovieApp = {
         const topMoviesContainer = document.getElementById('topMovies1');
         const moviesContainer = document.getElementById('movies');
 
+        // Check for search param in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search');
+
+        if (searchQuery && moviesContainer) {
+            // Remove "Coleção" or "Collection" from search term for better results
+            const cleanQuery = searchQuery.replace(/\s*(:|)\s*(Coleção|Collection)\s*$/i, '');
+
+            const searchInput = document.getElementById('searchText');
+            if (searchInput) {
+                searchInput.value = cleanQuery;
+            }
+
+            // Perform search
+            moviesContainer.innerHTML = UI.createSkeletonCards(8);
+            try {
+                const data = await MovieAPI.searchMovies(cleanQuery);
+                this.displayMovies(data.results || []);
+
+                // Update title if exists
+                const titleEl = document.querySelector('.section-title');
+                if (titleEl) {
+                    titleEl.textContent = `Resultados para: "${cleanQuery}"`;
+                }
+            } catch (error) {
+                UI.showToast('Erro ao buscar filmes', 'error');
+            }
+            return;
+        }
+
         if (topMoviesContainer) {
             await this.loadTopRatedMovies();
         }
@@ -968,8 +998,8 @@ const MovieApp = {
             <div class="mt-4">
                 <div class="collection-banner" style="background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('${IMAGE_BASE + '/w1280' + collection.backdrop_path}')">
                     <div class="p-4">
-                        <h3 class="text-white mb-2">Parte da coleção <span class="text-primary">${collection.name}</span></h3>
-                        <button class="btn btn-sm btn-outline-light rounded-pill">Ver Coleção</button>
+                        <h3 class="text-white mb-2"><span class="text-primary">${collection.name}</span></h3>
+                        <a href="browse.php?search=${encodeURIComponent(collection.name)}" class="btn btn-sm btn-outline-custom rounded-pill text-white border-white">Ver Coleção</a>
                     </div>
                 </div>
             </div>
