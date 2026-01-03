@@ -606,12 +606,30 @@ const MovieApp = {
             ? `$ ${(movie.revenue / 1000000).toFixed(1)} milhões`
             : 'Não informado';
 
+        // Set full page background
+        if (backdropUrl) {
+            let bgEl = document.getElementById('page-background');
+            let overlayEl = document.getElementById('page-overlay');
+
+            if (!bgEl) {
+                bgEl = document.createElement('div');
+                bgEl.id = 'page-background';
+                document.body.prepend(bgEl);
+            }
+
+            if (!overlayEl) {
+                overlayEl = document.createElement('div');
+                overlayEl.id = 'page-overlay';
+                document.body.prepend(overlayEl);
+            }
+
+            bgEl.style.backgroundImage = `url('${backdropUrl}')`;
+            // Fade in
+            setTimeout(() => bgEl.style.opacity = '1', 100);
+        }
+
         container.innerHTML = `
             <div class="movie-details">
-                ${backdropUrl ? `
-                    <div class="movie-backdrop" style="background-image: url('${backdropUrl}')"></div>
-                ` : ''}
-                
                 <div class="movie-content">
                     <!-- Back button at top -->
                     <div class="mb-4">
