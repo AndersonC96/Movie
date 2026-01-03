@@ -427,6 +427,13 @@ const MovieApp = {
                 ` : ''}
                 
                 <div class="movie-content">
+                    <!-- Back button at top -->
+                    <div class="mb-4">
+                        <a href="browse.php" class="btn-secondary-custom">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-md-4">
                             <img src="${posterUrl}" alt="${movie.title}" class="movie-poster glass-card">
@@ -480,25 +487,14 @@ const MovieApp = {
                                     <strong>Produtoras</strong>
                                     <span>${companies || 'Não informado'}</span>
                                 </div>
+                                ${this.renderWatchProviders(movie['watch/providers'])}
                             </div>
                             
-                            <div class="btn-group mt-4">
-                                ${movie.imdb_id ? `
-                                    <a href="https://www.imdb.com/title/${movie.imdb_id}" 
-                                       target="_blank" class="btn-primary-custom">
-                                        <i class="fab fa-imdb"></i> Ver no IMDB
-                                    </a>
-                                ` : ''}
-                                <a href="https://www.themoviedb.org/movie/${movie.id}/watch?locale=BR" 
-                                   target="_blank" class="btn-secondary-custom">
-                                    <i class="fas fa-play"></i> Onde Assistir
-                                </a>
-                                <a href="browse.php" class="btn-secondary-custom">
-                                    <i class="fas fa-arrow-left"></i> Voltar
-                                </a>
                             </div>
                         </div>
                     </div>
+                    
+                    ${this.renderVideosSection(movie.videos)}
                     
                     ${this.renderCastSection(movie.credits, movie.similar)}
                 </div>
@@ -610,6 +606,7 @@ const MovieApp = {
                     </div>
                 ` : ''}
             </div>
+            <div class="mb-5"></div>
         `;
     },
 
@@ -774,6 +771,104 @@ const MovieApp = {
             section.style.display = isHidden ? 'block' : 'none';
             toggleText.textContent = isHidden ? 'Ocultar' : 'Mostrar';
         }
+    },
+
+    /**
+     * Render watch providers (streaming platforms)
+     * @param {Object} providers - Watch providers data
+     * @returns {string} HTML string
+     */
+    renderWatchProviders(providers) {
+        if (!providers || !providers.results) {
+            return '';
+        }
+
+        // Get Brazil providers first, fallback to US
+        const countryData = providers.results.BR || providers.results.US;
+
+        if (!countryData) {
+            return '';
+        }
+
+        // Combine flatrate (streaming), rent, and buy options
+        const allProviders = [
+            ...(countryData.flatrate || []),
+            ...(countryData.rent || []),
+            ...(countryData.buy || [])
+        ];
+
+        // Remove duplicates by provider_id
+        const uniqueProviders = allProviders.filter((provider, index, self) =>
+            index === self.findIndex(p => p.provider_id === provider.provider_id)
+        );
+
+        if (uniqueProviders.length === 0) {
+            return '';
+        }
+
+        return `
+            <div class="info-item" style="grid-column: span 2;">
+                <strong>Onde Assistir</strong>
+                <div class="providers-list">
+                    ${uniqueProviders.slice(0, 6).map(provider => `
+                        <div class="provider-badge" title="${provider.provider_name}">
+                            <img src="${IMAGE_BASE}/w45${provider.logo_path}" 
+                                 alt="${provider.provider_name}"
+                                 class="provider-icon">
+                            <span>${provider.provider_name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    },
+
+    /**
+     * Render videos/trailers section
+     * @param {Object} videos - Videos data from TMDb
+     * @returns {string} HTML string
+     */
+    renderVideosSection(videos) {
+        if (!videos || !videos.results || videos.results.length === 0) {
+            return '';
+        }
+
+        // Filter for YouTube trailers and teasers
+        const youtubeVideos = videos.results.filter(v =>
+            v.site === 'YouTube' &&
+            ['Trailer', 'Teaser', 'Official Trailer'].includes(v.type)
+        );
+
+        if (youtubeVideos.length === 0) {
+            return '';
+        }
+
+        // Get first 3 videos
+        const displayVideos = youtubeVideos.slice(0, 3);
+
+        return `
+            <div class="mt-5 mb-4">
+                <div class="glass-card">
+                    <h4 class="mb-4"><i class="fas fa-play-circle text-primary me-2"></i>Trailers e Vídeos</h4>
+                    <div class="videos-grid">
+                        ${displayVideos.map(video => `
+                            <div class="video-item">
+                                <div class="video-wrapper">
+                                    <iframe 
+                                        src="https://www.youtube.com/embed/${video.key}" 
+                                        title="${video.name}"
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                                <p class="video-title">${video.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     /**

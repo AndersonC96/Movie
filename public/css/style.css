@@ -942,3 +942,94 @@ a:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ==================== Videos/Trailers Section ==================== */
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.video-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.video-title {
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .videos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== Watch Providers ==================== */
+.providers-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.provider-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 4px 10px 4px 4px;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+}
+
+.provider-badge:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.provider-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.provider-badge span {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .provider-badge span {
+        display: none;
+    }
+    
+    .provider-badge {
+        padding: 4px;
+    }
+}
